@@ -39,7 +39,7 @@ module os_menu (
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= 3'b000;
-            op_code <= 7'd0;
+            //    op_code <= 7'd0;
             val_a <= 7'd0;
             val_b <= 7'd0;
             result <= 8'd0;
