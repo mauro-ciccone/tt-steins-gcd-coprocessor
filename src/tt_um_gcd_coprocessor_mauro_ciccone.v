@@ -19,28 +19,14 @@ module tt_um_gcd_coprocessor_mauro_ciccone (
   assign uio_out = 8'b0;
   assign uio_oe  = 8'b0;
 
-  wire [3:0] gcd_result;
-  wire fsm_done;
-  wire [7:0] decoded_leds;
-
-  euclideanSteinFSM my_fsm (
-        .a_in    (ui_in[3:0]),  
-        .b_in    (ui_in[7:4]),  
-        .clk     (clk),
-        .reset   (rst_n),       
-        .start   (uio_in[0]),
-        .gcd_out (gcd_result),
-        .is_done (fsm_done)
-    );
-
-    decoderLED my_decoder (
-        .a (gcd_result),
-        .y (decoded_leds)
-    );
-
-    assign uo_out = fsm_done ? decoded_leds : 8'b01000000;
+  os_menu my_control_unit (
+      .clk    (clk),
+      .rst_n  (rst_n),
+      .ui_in  (ui_in),   // Passing the 8 switches into the OS
+      .uo_out (uo_out)   // Letting the OS control the 7-segment display
+  );
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, uio_in[7:1], 1'b0};
+  wire _unused = &{ena, uio_in[7:0], 1'b0};
 
 endmodule
