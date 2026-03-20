@@ -6,10 +6,12 @@ module os_menu (
     );
     
     reg [2:0] state;
-    reg [6:0] op_code;
+    //    reg [6:0] op_code;
     reg [6:0] val_a;
     reg [6:0] val_b;
+    /* verilator lint_off UNUSEDSIGNAL */
     reg [7:0] result;
+    /* verilator lint_on UNUSEDSIGNAL */
     reg enter_prev;
 
     wire enter_pulse = (ui_in[7] == 1'b1) && (enter_prev == 1'b0);
@@ -52,7 +54,7 @@ module os_menu (
                 STATE_MENU : begin
                     uo_out <= MENU_LED;
                     if (enter_pulse == 1) begin
-                        op_code <= ui_in[6:0];
+                        //    op_code <= ui_in[6:0];
                         state <= STATE_LOAD_A;
                     end
                 end

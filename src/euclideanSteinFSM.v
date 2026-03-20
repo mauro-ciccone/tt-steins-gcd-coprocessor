@@ -67,7 +67,7 @@ module euclideanSteinFSM (
                 end
 
                 STATE_DONE : begin
-                    result <= a_reg << divisions;
+                    result <= {1'b0, a_reg} << divisions;
                     done <= 1'b1;
                     if (!start) begin
                         state <= STATE_LOAD;
