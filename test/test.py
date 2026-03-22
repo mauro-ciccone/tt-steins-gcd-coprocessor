@@ -106,14 +106,14 @@ async def execute_app_lifecycle(dut, opcode, a, b, debounce_limit):
 
     # 4. READ TENS
 
-    await ClockCycles(dut.clk, 100)
+    await ClockCycles(dut.clk, 105)
     assert (int(dut.uo_out.value) & 0x80) == 0, f"Failed! Expected DP led to stop after hundreds, got {bin(dut.uo_out.value)}"
     segments = int(dut.uo_out.value) & 0x7F
     tens = SEG_TO_INT[int(segments)]
 
     # 5. READ UNITS
 
-    await ClockCycles(dut.clk, 100)
+    await ClockCycles(dut.clk, 105)
     assert (int(dut.uo_out.value) & 0x80) == 0, f"Failed! Expected DP led to stop after hundreds, got {bin(dut.uo_out.value)}"
     segments = int(dut.uo_out.value) & 0x7F
     units = SEG_TO_INT[int(segments)]
