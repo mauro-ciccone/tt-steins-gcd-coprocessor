@@ -96,26 +96,26 @@ async def execute_app_lifecycle(dut, opcode, a, b, debounce_limit):
 
     # 2. WAIT FOR THE DECIMAL POINT (Hundreds Digit)
 
-    while (dut.uo_out.value & 0x80) == 0:
+    while (int(dut.uo_out.value) & 0x80) == 0:
         await RisingEdge(dut.clk)
     
     # 3. READ HUNDREDS
     
-    segments = dut.uo_out.value & 0x7F  #mask out DP
+    segments = int(dut.uo_out.value) & 0x7F #mask out DP
     hundreds = SEG_TO_INT[int(segments)]
 
     # 4. READ TENS
 
     await ClockCycles(dut.clk, 100)
-    assert (dut.uo_out.value & 0x80) == 0, f"Failed! Expected DP led to stop after hundreds, got {bin(dut.uo_out.value)}"
-    segments = dut.uo_out.value & 0x7F
+    assert (int(dut.uo_out.value) & 0x80) == 0, f"Failed! Expected DP led to stop after hundreds, got {bin(dut.uo_out.value)}"
+    segments = int(dut.uo_out.value) & 0x7F
     tens = SEG_TO_INT[int(segments)]
 
     # 5. READ UNITS
 
     await ClockCycles(dut.clk, 100)
-    assert (dut.uo_out.value & 0x80) == 0, f"Failed! Expected DP led to stop after hundreds, got {bin(dut.uo_out.value)}"
-    segments = dut.uo_out.value & 0x7F
+    assert (int(dut.uo_out.value) & 0x80) == 0, f"Failed! Expected DP led to stop after hundreds, got {bin(dut.uo_out.value)}"
+    segments = int(dut.uo_out.value) & 0x7F
     units = SEG_TO_INT[int(segments)]
 
     # 6. RECONSTRUCT THE ANSWER
@@ -277,11 +277,11 @@ async def strict_verification_suite(dut):
         await chitter_press_enter(dut, 100)
         
         # Wait for calculation to finish and DP to light up
-        while (dut.uo_out.value & 0x80) == 0:
+        while (int(dut.uo_out.value) & 0x80) == 0:
             await RisingEdge(dut.clk)
             
         # Read the Hundreds digit to see what latched!
-        segments = dut.uo_out.value & 0x7F
+        segments = int(dut.uo_out.value) & 0x7F
         latched_ans = SEG_TO_INT[int(segments)]
         
         dut._log.info(f"Resulting Hundreds Digit: {latched_ans}")
@@ -313,7 +313,7 @@ async def strict_verification_suite(dut):
     await ClockCycles(dut.clk, 50)
     
     # Did the FSM safely stop at STATE_DONE, or did it skip straight back to Menu?
-    assert (dut.uo_out.value & 0x80) != 0, "FAILED! Impatient hold caused FSM to skip STATE_DONE."
+    assert (int(dut.uo_out.value) & 0x80) != 0, "FAILED! Impatient hold caused FSM to skip STATE_DONE."
     dut._log.info("Impatient Hold resisted! Chip safely stopped at STATE_DONE.")
     
     # Finally, release the switch and press it again to exit
@@ -336,7 +336,7 @@ async def strict_verification_suite(dut):
     await chitter_press_enter(dut, 100)
     
     # Wait for the Hundreds digit (DP is high)
-    while (dut.uo_out.value & 0x80) == 0:
+    while (int(dut.uo_out.value) & 0x80) == 0:
         await RisingEdge(dut.clk)
         
     dut._log.info("Hundreds digit showing. Interrupting timer NOW!")
@@ -357,7 +357,7 @@ async def strict_verification_suite(dut):
     
     # If the multiplexer resets properly, the very first digit to show should have the DP on!
     await ClockCycles(dut.clk, 20)
-    while (dut.uo_out.value & 0x80) == 0:
+    while (int(dut.uo_out.value) & 0x80) == 0:
         await RisingEdge(dut.clk)
         
     dut._log.info("Premature Exit safely handled! Multiplexer cleanly reset to Hundreds digit.")
