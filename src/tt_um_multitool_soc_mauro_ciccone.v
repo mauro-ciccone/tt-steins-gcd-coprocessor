@@ -23,10 +23,11 @@ module tt_um_multitool_soc_mauro_ciccone (
       .clk    (clk),
       .rst_n  (rst_n),
       .ui_in  (ui_in),   // Passing the 8 switches into the OS
+      .test_mode (uio_in[7]),  // pin to activate testing / fast forward timer delays
       .uo_out (uo_out)   // Letting the OS control the 7-segment display
   );
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, uio_in[7:0], 1'b0};
+  wire _unused = &{ena, uio_in[6:0], 1'b0};
 
 endmodule

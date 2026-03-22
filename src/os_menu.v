@@ -1,8 +1,8 @@
-module os_menu #(
-    parameter DEBOUNCE_MAX = 20'd1000000) (
+module os_menu (
     input  wire       clk,
     input  wire       rst_n,
     input  wire [7:0] ui_in,
+    input  wire       test_mode,
     output reg  [7:0] uo_out
     );
     
@@ -36,6 +36,7 @@ module os_menu #(
     wire [7:0] isqrt_answer;
     wire lfsr_done;
     wire [7:0] lfsr_answer;
+    wire [19:0] debounce_limit = (test_mode == 1'b1) ? 20'd5 : 20'd1000000;
     
 
     localparam STATE_MENU = 3'd0;
@@ -58,6 +59,7 @@ module os_menu #(
         .clk    (clk),
         .rst_n  (rst_n),
         .enable (timer_enable),
+        .test_mode (test_mode),
         .tick   (timer_tick)
     );
 
@@ -125,7 +127,7 @@ module os_menu #(
             end
             else begin
                 debounce_cnt <= debounce_cnt + 1'b1;
-                if (debounce_cnt >= DEBOUNCE_MAX) begin
+                if (debounce_cnt >= debounce_limit) begin
                     debounced_enter <= sync_1;
                     debounce_cnt <= 20'd0;
                 end
