@@ -1,4 +1,4 @@
-module delay_timer (
+module delay_timer #(parameter MAX_COUNT = 26'd49999999) (
     input wire clk,
     input wire rst_n,
     input wire enable,
@@ -19,7 +19,7 @@ module delay_timer (
             end
             else begin
                 counter <= counter + 1;
-                if (counter == 26'd49999999) begin
+                if (counter == MAX_COUNT) begin
                     tick <= 1;
                     counter <= 0;
                 end

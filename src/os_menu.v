@@ -1,4 +1,5 @@
-module os_menu (
+module os_menu #(
+    parameter DEBOUNCE_MAX = 20'd1000000) (
     input  wire       clk,
     input  wire       rst_n,
     input  wire [7:0] ui_in,
@@ -11,13 +12,19 @@ module os_menu (
     reg [6:0] val_b;
     reg [7:0] result;
     reg enter_prev;
+    reg sync_0;
+    reg sync_1;
+    reg [19:0] debounce_cnt;
+    reg debounced_enter;
     reg  timer_enable;
     reg  [1:0] display_state;
     reg start_gcd;
     reg start_isqrt;
+    reg start_lfsr;
 
-    wire enter_pulse = (ui_in[7] == 1'b1) && (enter_prev == 1'b0);
+    wire enter_pulse = (debounced_enter == 1'b1) && (enter_prev == 1'b0);
     wire [7:0] decoded_result_LED;
+    wire unused_dp = &{1'b0, decoded_result_LED[7]};
     wire gcd_done;
     wire [7:0] gcd_answer;
     wire [11:0] bcd_result;
@@ -27,6 +34,8 @@ module os_menu (
                                                          bcd_result[3:0];
     wire isqrt_done;
     wire [7:0] isqrt_answer;
+    wire lfsr_done;
+    wire [7:0] lfsr_answer;
     
 
     localparam STATE_MENU = 3'd0;
@@ -77,6 +86,16 @@ module os_menu (
     .done   (isqrt_done)
     );
 
+    op_lfsr prng_coprocessor (
+        .a_in   (val_a),
+        .b_in   (val_b),
+        .clk    (clk),
+        .rst_n  (rst_n),
+        .start  (start_lfsr),
+        .result (lfsr_answer),
+        .done   (lfsr_done)
+    );
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= 3'b000;
@@ -85,14 +104,35 @@ module os_menu (
             val_b <= 7'd0;
             result <= 8'd0;
             enter_prev <= 1'b0;
+            sync_0 <= 1'b0;
+            sync_1 <= 1'b0;
+            debounce_cnt <= 20'd0;
+            debounced_enter <= 1'b0;
             uo_out <= 8'd0;
             start_gcd <= 1'b0;
             timer_enable <= 1'b0;
             display_state <= 2'd0;
             start_isqrt <= 1'b0;
+            start_lfsr <= 1'b0;
         end
         else begin
-            enter_prev <= ui_in[7];
+
+            sync_0 <= ui_in[7];
+            sync_1 <= sync_0;
+
+            if (debounced_enter == sync_1) begin
+                debounce_cnt <= 20'd0;
+            end
+            else begin
+                debounce_cnt <= debounce_cnt + 1'b1;
+                if (debounce_cnt >= DEBOUNCE_MAX) begin
+                    debounced_enter <= sync_1;
+                    debounce_cnt <= 20'd0;
+                end
+            end
+
+
+            enter_prev <= debounced_enter;
 
             case (state)
                 STATE_MENU : begin
@@ -138,6 +178,16 @@ module os_menu (
                             end
                             else begin
                                 start_isqrt <= 1'b1;
+                            end
+                        end
+                        7'd2 : begin
+                            if (lfsr_done == 1'b1) begin
+                                result <= lfsr_answer;
+                                start_lfsr <= 1'b0;
+                                state <= STATE_DONE;
+                            end
+                            else begin
+                                start_lfsr <= 1'b1;
                             end
                         end
                         //add here the other operations
