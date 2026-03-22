@@ -7,7 +7,7 @@ from cocotb.triggers import ClockCycles, RisingEdge
 import math
 import random
 
-# ==========================================
+# ==========================================    this is line 10
 # HARDWARE DICTIONARIES
 # ==========================================
 
@@ -52,27 +52,27 @@ async def chitter_press_enter(dut, debounce_limit=100):
     # 1. The Press Bounce (Metal making contact)
 
     for i in range (5):
-        dut.ui_in.value = dut.ui_in.value | 0x80
+        dut.ui_in.value = int(dut.ui_in.value) | 0x80
         await ClockCycles(dut.clk, random.randint(2, 15))
-        dut.ui_in.value = dut.ui_in.value & 0x7F
+        dut.ui_in.value = int(dut.ui_in.value) & 0x7F
         await ClockCycles(dut.clk, random.randint(2, 15))
 
     # 2. The Solid Hold (Human finger fully down)
 
-    dut.ui_in.value = dut.ui_in.value | 0x80
+    dut.ui_in.value = int(dut.ui_in.value) | 0x80
     await ClockCycles(dut.clk, debounce_limit + 50)
 
     # 3. The Release Bounce (Metal springing back)
     
     for i in range (5):
-        dut.ui_in.value = dut.ui_in.value | 0x80
+        dut.ui_in.value = int(dut.ui_in.value) | 0x80
         await ClockCycles(dut.clk, random.randint(2, 15))
-        dut.ui_in.value = dut.ui_in.value & 0x7F
+        dut.ui_in.value = int(dut.ui_in.value) & 0x7F
         await ClockCycles(dut.clk, random.randint(2, 15))
 
     # 4. The Solid Release (Finger removed)
 
-    dut.ui_in.value = dut.ui_in.value & 0x7F
+    dut.ui_in.value = int(dut.ui_in.value) & 0x7F
     await ClockCycles(dut.clk, debounce_limit + 50)
 
     pass
@@ -141,7 +141,7 @@ async def strict_verification_suite(dut):
     dut._log.info("Starting ETH-Standard Automated Verification Suite...")
 
     # Boot the 50MHz Clock
-    clock = Clock(dut.clk, 20, units="ns")
+    clock = Clock(dut.clk, 20, unit="ns")
     cocotb.start_soon(clock.start())
 
     # Run the Reset Sequence
@@ -151,9 +151,9 @@ async def strict_verification_suite(dut):
 
     #Test chitter resistance
     for i in range (5):
-        dut.ui_in.value = dut.ui_in.value | 0x80
+        dut.ui_in.value = int(dut.ui_in.value) | 0x80
         await ClockCycles(dut.clk, random.randint(2, 15))
-        dut.ui_in.value = dut.ui_in.value & 0x7F
+        dut.ui_in.value = int(dut.ui_in.value) & 0x7F
         await ClockCycles(dut.clk, random.randint(2, 15))
 
     assert dut.uo_out.value == 0b01101101, f"Failed! Expected MENU_LED after chitter, got {bin(dut.uo_out.value)}"
@@ -257,7 +257,7 @@ async def strict_verification_suite(dut):
         dut.ui_in.value = 12
         
         # Manually start the Enter press WITHOUT our helper function so we can interrupt it
-        dut.ui_in.value = dut.ui_in.value | 0x80 
+        dut.ui_in.value = int(dut.ui_in.value) | 0x80 
         
         # Wait until the EXACT moment the debouncer is about to trigger
         await ClockCycles(dut.clk, wait_cycles)
@@ -269,7 +269,7 @@ async def strict_verification_suite(dut):
         await ClockCycles(dut.clk, 10)
         
         # Release Enter cleanly
-        dut.ui_in.value = dut.ui_in.value & 0x7F
+        dut.ui_in.value = int(dut.ui_in.value) & 0x7F
         await ClockCycles(dut.clk, 150)
         
         # We are now in LOAD_B. Finish the math (B = 10)
@@ -306,7 +306,7 @@ async def strict_verification_suite(dut):
     dut.ui_in.value = 8
     
     # Press Enter for B, but NEVER RELEASE IT
-    dut.ui_in.value = dut.ui_in.value | 0x80
+    dut.ui_in.value = int(dut.ui_in.value) | 0x80
     await ClockCycles(dut.clk, 150) # Hold past debounce limit
     
     # Wait for the math to finish while STILL holding Enter
@@ -317,7 +317,7 @@ async def strict_verification_suite(dut):
     dut._log.info("Impatient Hold resisted! Chip safely stopped at STATE_DONE.")
     
     # Finally, release the switch and press it again to exit
-    dut.ui_in.value = dut.ui_in.value & 0x7F
+    dut.ui_in.value = int(dut.ui_in.value) & 0x7F
     await ClockCycles(dut.clk, 150)
     await chitter_press_enter(dut, 100)
 
