@@ -7,7 +7,7 @@ from cocotb.triggers import ClockCycles, RisingEdge
 import math
 import random
 
-# ==========================================    this is line 10
+# ==========================================
 # HARDWARE DICTIONARIES
 # ==========================================
 

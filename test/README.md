@@ -1,47 +1,37 @@
-# Sample testbench for a Tiny Tapeout project
+Multi-Tool SoC Verification Suite
+This directory contains the automated, cycle-accurate Python testbench for the Multi-Tool SoC. It uses cocotb to drive the hardware FSM, inject simulated physical noise, and verify the mathematical outputs of the coprocessors.
 
-This is a sample testbench for a Tiny Tapeout project. It uses [cocotb](https://docs.cocotb.org/en/stable/) to drive the DUT and check the outputs.
-See below to get started or for more information, check the [website](https://tinytapeout.com/hdl/testing/).
+Test Coverage
+This is a comprehensive suite that verifies both the mathematical logic and the physical resilience of the silicon FSM:
 
-## Setting up
+Mechanical Chitter Resilience: Simulates violent, randomized switch bouncing on the Enter pin to prove the hardware debouncer and edge-detectors ignore electrical noise.
 
-1. Edit [Makefile](Makefile) and modify `PROJECT_SOURCES` to point to your Verilog files.
-2. Edit [tb.v](tb.v) and replace `tt_um_example` with your module name.
+Mathematical Vectors: Automatically loops through edge-case math problems for the Euclidean GCD FSM, the Integer Square Root engine, and the Cryptographic LFSR.
 
-## How to run
+UI Multiplexing: Cycle-accurately reads the 7-segment display multiplexer out of the "data eye" to reconstruct the answer.
 
-To run the RTL simulation:
+Physical Vulnerabilities: Simulates chaotic human behavior, including "Fat Finger" asynchronous data latching, "Impatient Hold" switch locks, and mid-calculation "Rage Quit" asynchronous resets.
 
-```sh
+How to Run Locally
+If you have the OSS CAD Suite or Icarus Verilog installed, you can run the RTL simulation locally:
+
+Bash
 make -B
-```
+To run the gate-level simulation (testing the actual synthesized physical gates), first ensure your project has been hardened by GitHub Actions, then run:
 
-To run gatelevel simulation, first harden your project and copy `../runs/wokwi/results/final/verilog/gl/{your_module_name}.v` to `gate_level_netlist.v`.
-
-Then run:
-
-```sh
+Bash
 make -B GATES=yes
-```
+Cloud CI/CD (GitHub Actions)
+This testbench is fully integrated into the Tiny Tapeout GitHub Actions pipeline. Every push to the main branch automatically triggers both the RTL and Gate-Level (gl_test) testbenches in the cloud.
 
-If you wish to save the waveform in VCD format instead of FST format, edit tb.v to use `$dumpfile("tb.vcd");` and then run:
+Viewing the Waveforms
+If a test fails or you want to inspect the exact clock-cycle timing of the FSM and multiplexer, a .fst waveform file is generated.
 
-```sh
-make -B FST=
-```
+Using GTKWave:
 
-This will generate `tb.vcd` instead of `tb.fst`.
-
-## How to view the waveform file
-
-Using GTKWave
-
-```sh
+Bash
 gtkwave tb.fst tb.gtkw
-```
+Using Surfer:
 
-Using Surfer
-
-```sh
+Bash
 surfer tb.fst
-```
