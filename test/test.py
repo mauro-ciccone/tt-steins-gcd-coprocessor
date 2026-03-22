@@ -84,14 +84,17 @@ async def execute_app_lifecycle(dut, opcode, a, b, debounce_limit):
     # 1. LOAD THE DATA
 
     dut.ui_in.value = opcode
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, debounce_limit)
     assert dut.uo_out.value == 0b01110111, f"Failed! Expected LOAD_A state, got {bin(dut.uo_out.value)}"
 
     dut.ui_in.value = a
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, debounce_limit)
     assert dut.uo_out.value == 0b01111111, f"Failed! Expected LOAD_B state, got {bin(dut.uo_out.value)}"
 
     dut.ui_in.value = b
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, debounce_limit)
 
     # 2. WAIT FOR THE DECIMAL POINT (Hundreds Digit)
