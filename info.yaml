@@ -23,7 +23,7 @@ project:
     - "os_menu.v"
     - "delay_timer.v"
     - "bin_to_bcd.v"
-    - "op_isqrt"
+    - "op_isqrt.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
