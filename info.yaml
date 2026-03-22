@@ -2,10 +2,10 @@
 project:
   title:        "Multi-Tool SoC"      # Project title
   author:       "Mauro Ciccone"      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "Multi-Tool SoC which takes multiple user inputs and outputs depending on op selection and input values"      # One line description of what your project does
+  discord:      "sprunggelenkbandage"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
+  description:  "An alphabet-driven, multi-state OS featuring hardware engines for Euclidean GCD, Integer Square Root, and a Cryptographic LFSR"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
+  clock_hz:     50000000       # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
   tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
@@ -30,34 +30,34 @@ project:
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: "input a bit 0"
-  ui[1]: "input a bit 1"
-  ui[2]: "input a bit 2"
-  ui[3]: "input a bit 3"
-  ui[4]: "input b bit 0"
-  ui[5]: "input b bit 1"
-  ui[6]: "input b bit 2"
-  ui[7]: "input b bit 3"
+  ui[0]: "Data Bit 0 (Opcode / Val A / Val B)"
+  ui[1]: "Data Bit 1 (Opcode / Val A / Val B)"
+  ui[2]: "Data Bit 2 (Opcode / Val A / Val B)"
+  ui[3]: "Data Bit 3 (Opcode / Val A / Val B)"
+  ui[4]: "Data Bit 4 (Opcode / Val A / Val B)"
+  ui[5]: "Data Bit 5 (Opcode / Val A / Val B)"
+  ui[6]: "Data Bit 6 (Opcode / Val A / Val B)"
+  ui[7]: "Enter / Submit Switch (Debounced)"
 
   # Outputs
-  uo[0]: "segment a"
-  uo[1]: "segment b"
-  uo[2]: "segment c"
-  uo[3]: "segment d"
-  uo[4]: "segment e"
-  uo[5]: "segment f"
-  uo[6]: "segment g"
-  uo[7]: "decimal point"
+  uo[0]: "Segment A"
+  uo[1]: "Segment B"
+  uo[2]: "Segment C"
+  uo[3]: "Segment D"
+  uo[4]: "Segment E"
+  uo[5]: "Segment F"
+  uo[6]: "Segment G"
+  uo[7]: "Decimal Point (Digit Multiplexer)"
 
   # Bidirectional pins
-  uio[0]: "start button"
+  uio[0]: ""
   uio[1]: ""
   uio[2]: ""
   uio[3]: ""
   uio[4]: ""
   uio[5]: ""
   uio[6]: ""
-  uio[7]: ""
+  uio[7]: "Test Mode (Fast-Forward Timer Bypass)"
 
 # Do not change!
 yaml_version: 6
