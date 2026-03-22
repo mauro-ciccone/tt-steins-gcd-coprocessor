@@ -171,7 +171,7 @@ async def strict_verification_suite(dut):
         
         # Call execute_app_lifecycle and get the hardware_answer
 
-        hardware_answer = await execute_app_lifecycle(dut, 0, a, b, 100)
+        hardware_answer = await execute_app_lifecycle(dut, 0b0000000, a, b, 100)
         expected = math.gcd(a, b)
         assert hardware_answer == expected, f"GCD Failed! Got {hardware_answer}, Expected {expected}"
         
