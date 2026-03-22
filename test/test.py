@@ -244,8 +244,6 @@ async def strict_verification_suite(dut):
     # -----------------------------------------------------------------
     # EDGE CASE 1: THE "FAT FINGER" (Asynchronous Data Change)
     # -----------------------------------------------------------------
-    # Scenario: The user flips the data switches while the Enter debouncer is resolving.
-    # We will run 3 quick tests targeting the exact clock cycle the debouncer triggers.
     
     await apply_hardware_reset(dut)
     
@@ -254,10 +252,12 @@ async def strict_verification_suite(dut):
         
         # Go to MENU and select Opcode 0
         dut.ui_in.value = 0
+        await ClockCycles(dut.clk, 1) # THE FIX: Let data propagate
         await chitter_press_enter(dut, 100)
         
         # We are in LOAD_A. Set data to 12.
         dut.ui_in.value = 12
+        await ClockCycles(dut.clk, 1) # THE FIX: Let data propagate
         
         # Manually start the Enter press WITHOUT our helper function so we can interrupt it
         dut.ui_in.value = int(dut.ui_in.value) | 0x80 
@@ -277,6 +277,7 @@ async def strict_verification_suite(dut):
         
         # We are now in LOAD_B. Finish the math (B = 10)
         dut.ui_in.value = 10
+        await ClockCycles(dut.clk, 1) # THE FIX: Let data propagate
         await chitter_press_enter(dut, 100)
         
         # Wait for calculation to finish and DP to light up
@@ -288,8 +289,6 @@ async def strict_verification_suite(dut):
         latched_ans = SEG_TO_INT[int(segments)]
         
         dut._log.info(f"Resulting Hundreds Digit: {latched_ans}")
-        # If it latched 12, GCD(12, 10) = 2. If it latched 25, GCD(25, 10) = 5.
-        # This proves exactly which clock cycle locks the data into the flip-flop!
         
         # Exit DONE state
         await chitter_press_enter(dut, 100)
@@ -297,16 +296,20 @@ async def strict_verification_suite(dut):
     # -----------------------------------------------------------------
     # EDGE CASE 2: THE "IMPATIENT HOLD"
     # -----------------------------------------------------------------
-    # Scenario: User starts calculation but forgets to flip the Enter switch back down.
     dut._log.info("--- EDGE CASE 2: IMPATIENT HOLD ---")
     await apply_hardware_reset(dut)
     
     # Load Opcode 0, A=12, B=8 normally
     dut.ui_in.value = 0
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, 100)
+    
     dut.ui_in.value = 12
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, 100)
+    
     dut.ui_in.value = 8
+    await ClockCycles(dut.clk, 1)
     
     # Press Enter for B, but NEVER RELEASE IT
     dut.ui_in.value = int(dut.ui_in.value) | 0x80
@@ -327,15 +330,17 @@ async def strict_verification_suite(dut):
     # -----------------------------------------------------------------
     # EDGE CASE 3: THE "PREMATURE EXIT"
     # -----------------------------------------------------------------
-    # Scenario: User gets bored looking at the first digit and hits Enter to do a new math problem.
     dut._log.info("--- EDGE CASE 3: PREMATURE EXIT ---")
     
     # Start a quick GCD
     dut.ui_in.value = 0
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, 100)
     dut.ui_in.value = 25
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, 100)
     dut.ui_in.value = 10
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, 100)
     
     # Wait for the Hundreds digit (DP is high)
@@ -350,12 +355,15 @@ async def strict_verification_suite(dut):
     # Check if we correctly aborted back to Menu
     assert dut.uo_out.value == 0b01101101, f"FAILED! Did not cleanly return to Menu. Got {bin(dut.uo_out.value)}"
     
-    # Critical Check: If we do a new math problem, does the display start correctly at Hundreds, or is it stuck on Tens?
+    # Critical Check: If we do a new math problem, does the display start correctly at Hundreds?
     dut.ui_in.value = 0
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, 100)
     dut.ui_in.value = 12
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, 100)
     dut.ui_in.value = 8
+    await ClockCycles(dut.clk, 1)
     await chitter_press_enter(dut, 100)
     
     # If the multiplexer resets properly, the very first digit to show should have the DP on!
