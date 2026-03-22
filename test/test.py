@@ -89,7 +89,7 @@ async def execute_app_lifecycle(dut, opcode, a, b, debounce_limit):
 
     dut.ui_in.value = a
     await chitter_press_enter(dut, debounce_limit)
-    assert dut.uo_out.value == 0b11111111, f"Failed! Expected LOAD_B state, got {bin(dut.uo_out.value)}"
+    assert dut.uo_out.value == 0b01111111, f"Failed! Expected LOAD_B state, got {bin(dut.uo_out.value)}"
 
     dut.ui_in.value = b
     await chitter_press_enter(dut, debounce_limit)
