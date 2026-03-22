@@ -134,6 +134,23 @@ async def execute_app_lifecycle(dut, opcode, a, b, debounce_limit):
     
     return hardware_answer
 
+def math_lfsr(seed, steps):
+    """Software model of op_lfsr.v for automated verification"""
+    # 1. Zero-seed protection
+    if seed == 0:
+        val = 1
+    else:
+        val = seed & 0x7F # a_in is 7-bits max
+        
+    # 2. Shift and XOR
+    for _ in range(steps):
+        # Calculate the feedback bit (Bits 7, 5, 4, 3)
+        feedback = ((val >> 7) ^ (val >> 5) ^ (val >> 4) ^ (val >> 3)) & 1
+        
+        # Shift left, mask to 8 bits, and insert the feedback bit at the bottom
+        val = ((val << 1) & 0xFF) | feedback
+        
+    return val
 
 # ==========================================
 # MAIN EXECUTION THREAD
@@ -201,10 +218,12 @@ async def strict_verification_suite(dut):
         dut._log.info(f"Testing LFSR: Seed={a}, Steps={b}")
         
         # TASK 6: Call execute_app_lifecycle and get the hardware_answer
-        # Just print it out using dut._log.info() since we don't have a built-in math.lfsr function.
         
         hardware_answer = await execute_app_lifecycle(dut, 2, a, b, 100)
-        dut._log.info(hardware_answer)
+        expected = math_lfsr(a, b)
+        
+        dut._log.info(f"Hardware: {hardware_answer} | Software: {expected}")
+        assert hardware_answer == expected, f"LFSR Failed! Got {hardware_answer}, Expected {expected}"
         
         pass
 
